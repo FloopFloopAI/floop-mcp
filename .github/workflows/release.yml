@@ -1,0 +1,73 @@
+name: Release
+on:
+  push:
+    tags: ["mcp-v*"]
+
+permissions:
+  contents: write
+  id-token: write  # required for npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@floopfloop"
+          always-auth: true
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test (stdio handshake)
+        run: |
+          output=$(printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | FLOOP_API_KEY=flp_dummy timeout 5 node dist/index.js 2>/dev/null)
+          count=$(printf '%s\n' "$output" | python3 -c 'import json,sys; [print(len(m["result"]["tools"])) for m in (json.loads(l) for l in sys.stdin if l.strip()) if m.get("id")==2]' | head -1)
+          echo "Registered tools: $count"
+          if [ "$count" != "12" ]; then
+            echo "Expected 12 tools, got $count" >&2
+            exit 1
+          fi
+
+      - name: Verify package version matches tag
+        run: |
+          TAG="${GITHUB_REF_NAME#mcp-v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag $GITHUB_REF_NAME (→ $TAG) does not match package.json $PKG"
+            exit 1
+          fi
+
+      - name: Auth sanity check
+        run: |
+          echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
+          npm whoami --registry https://registry.npmjs.org || echo "whoami failed"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: true

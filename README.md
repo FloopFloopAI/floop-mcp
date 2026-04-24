@@ -112,6 +112,31 @@ printf '%s\n' \
   | FLOOP_API_KEY=flp_dummy node dist/index.js 2>/dev/null
 ```
 
+## Releasing
+
+`.github/workflows/release.yml` publishes to npm with provenance whenever
+a tag matching `mcp-v*` is pushed. One-time setup before the first
+release:
+
+1. Create an **automation** npm token on the `@floopfloop` scope
+   (publishes bypass 2FA by design when tokens are marked automation).
+2. Add it as the repo secret `NPM_TOKEN`:
+   ```bash
+   gh secret set NPM_TOKEN --repo FloopFloopAI/floop-mcp
+   # paste token when prompted — do NOT use --body, which can leak it to
+   # shell history.
+   ```
+3. Tag + push:
+   ```bash
+   npm version 0.1.0-alpha.1 --no-git-tag-version  # if needed
+   git tag mcp-v$(node -p "require('./package.json').version")
+   git push --follow-tags
+   ```
+
+The workflow typechecks, builds, runs the stdio smoke test, verifies the
+tag matches `package.json`, then publishes and cuts a GitHub Release
+(prerelease, auto-generated notes).
+
 ## License
 
 MIT

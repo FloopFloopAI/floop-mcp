@@ -25,20 +25,14 @@ jobs:
 
       # Smoke test: spawn the binary with a dummy key and verify the MCP
       # handshake returns the expected number of tools.
-      - name: Smoke test
+      - name: Smoke test (stdio handshake)
         run: |
           output=$(printf '%s\n' \
             '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
             '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
             '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
             | FLOOP_API_KEY=flp_dummy timeout 5 node dist/index.js 2>/dev/null)
-          count=$(echo "$output" | python -c "import json,sys
-for line in sys.stdin:
-    if not line.strip(): continue
-    m = json.loads(line)
-    if m.get('id') == 2:
-        print(len(m['result']['tools']))
-        break")
+          count=$(printf '%s\n' "$output" | python3 -c 'import json,sys; [print(len(m["result"]["tools"])) for m in (json.loads(l) for l in sys.stdin if l.strip()) if m.get("id")==2]' | head -1)
           echo "Registered tools: $count"
           if [ "$count" != "12" ]; then
             echo "Expected 12 tools, got $count" >&2
