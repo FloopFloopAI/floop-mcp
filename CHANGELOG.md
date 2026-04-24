@@ -6,6 +6,25 @@ This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] — 2026-04-24
+
+### Added
+- **`upload_from_path` tool** — closes the Uploads gap deferred in
+  0.1.0-alpha.2. The tool reads a file from the MCP host's local
+  filesystem (Claude Desktop, Cursor, etc. all run with the user's
+  working-directory permissions), presigns a slot via
+  `floop.uploads.create`, PUTs to S3, and returns an
+  `UploadedAttachment` that downstream `refine_project` calls can drop
+  straight into its `attachments` array. Max 5 MB, extension allowlist
+  matches the SDK (png / jpg / gif / svg / webp / ico / pdf / txt /
+  csv / doc / docx). Use when the user references a screenshot / PDF /
+  CSV by path in chat.
+- Total tool count now **19**. Unit test, CI smoke test, and release
+  smoke test all bumped from 18 → 19.
+
+### Changed
+- `PACKAGE_VERSION` + `package.json#version` bumped to `0.1.0-alpha.3`.
+
 ## [0.1.0-alpha.2] — 2026-04-24
 
 ### Added

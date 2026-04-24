@@ -7,7 +7,12 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { FloopClient, FloopError } from "@floopfloop/sdk";
+import { readFile, stat } from "node:fs/promises";
+import { basename, isAbsolute, resolve } from "node:path";
 import { z } from "zod";
+
+/** Per-file ceiling the backend enforces. Keep in sync with the SDK. */
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 export function registerTools(server: McpServer, floop: FloopClient): void {
   // ---------- projects ----------
@@ -309,6 +314,60 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
       annotations: { destructiveHint: true, idempotentHint: true },
     },
     wrap(({ idOrName }) => floop.apiKeys.remove(idOrName)),
+  );
+
+  // ---------- uploads (local-filesystem variant) ----------
+
+  server.registerTool(
+    "upload_from_path",
+    {
+      title: "Upload a local file as an attachment",
+      description:
+        "Read a file from the LLM host's local filesystem, presign a slot " +
+        "on FloopFloop, PUT the bytes directly to S3, and return an " +
+        "UploadedAttachment you can attach to refine_project. Use this " +
+        "when the user references a screenshot / PDF / CSV by path in the " +
+        "chat — the host process (Claude Desktop, Cursor, etc.) has read " +
+        "access to the working directory. Max 5 MB; allowed types: png, " +
+        "jpg, gif, svg, webp, ico, pdf, txt, csv, doc, docx.",
+      inputSchema: {
+        filePath: z
+          .string()
+          .min(1)
+          .describe("Absolute or relative path to the file on the host machine"),
+        fileType: z
+          .string()
+          .optional()
+          .describe(
+            "MIME type override (default: guessed from extension). Must be on the backend allowlist.",
+          ),
+      },
+      annotations: { readOnlyHint: false, idempotentHint: false },
+    },
+    wrap(async ({ filePath, fileType }) => {
+      const absPath = isAbsolute(filePath) ? filePath : resolve(process.cwd(), filePath);
+      const stats = await stat(absPath);
+      if (!stats.isFile()) {
+        throw new FloopError({
+          code: "VALIDATION_ERROR",
+          message: `upload_from_path: ${absPath} is not a regular file`,
+          status: 0,
+        });
+      }
+      if (stats.size > MAX_UPLOAD_BYTES) {
+        throw new FloopError({
+          code: "VALIDATION_ERROR",
+          message: `upload_from_path: ${basename(absPath)} is ${(stats.size / 1024 / 1024).toFixed(1)} MB — the upload limit is 5 MB.`,
+          status: 0,
+        });
+      }
+      const bytes = await readFile(absPath);
+      return floop.uploads.create({
+        fileName: basename(absPath),
+        file: bytes,
+        ...(fileType ? { fileType } : {}),
+      });
+    }),
   );
 
   // ---------- account ----------

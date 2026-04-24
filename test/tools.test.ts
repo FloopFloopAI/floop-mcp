@@ -123,10 +123,11 @@ describe("registerTools", () => {
     "list_api_keys",
     "create_api_key",
     "remove_api_key",
+    "upload_from_path",
     "whoami",
   ] as const;
 
-  it("registers exactly the expected 18 tools, each with a description and inputSchema", () => {
+  it("registers exactly the expected 19 tools, each with a description and inputSchema", () => {
     const registered: Array<{ name: string; meta: Record<string, unknown> }> = [];
     const mockServer = {
       registerTool: (name: string, meta: Record<string, unknown>, _handler: unknown) => {

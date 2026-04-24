@@ -29,6 +29,7 @@ Wraps the official [`@floopfloop/sdk`](https://www.npmjs.com/package/@floopfloop
 | `list_api_keys`        | List the user's API keys (never returns the raw secret) |
 | `create_api_key`       | Mint a new API key — raw secret returned ONCE     |
 | `remove_api_key`       | Revoke an API key by id or name                   |
+| `upload_from_path`     | Read a local file, presign + upload to S3, return an attachment ref |
 | `whoami`               | Show the authenticated user                       |
 
 ## Configuration

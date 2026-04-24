@@ -15,7 +15,7 @@ import { FloopClient } from "@floopfloop/sdk";
 
 import { registerTools } from "./tools.js";
 
-const PACKAGE_VERSION = "0.1.0-alpha.2";
+const PACKAGE_VERSION = "0.1.0-alpha.3";
 
 async function main(): Promise<void> {
   const apiKey = process.env.FLOOP_API_KEY;
