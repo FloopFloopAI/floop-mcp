@@ -1,0 +1,117 @@
+# @floopfloop/mcp
+
+[![npm version](https://img.shields.io/npm/v/@floopfloop/mcp?logo=npm)](https://www.npmjs.com/package/@floopfloop/mcp)
+[![Node.js Version](https://img.shields.io/node/v/@floopfloop/mcp?logo=node.js&logoColor=white)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/npm/l/@floopfloop/mcp)](./LICENSE)
+
+Model Context Protocol server for the [FloopFloop](https://www.floopfloop.com) API — lets Claude Desktop, Cursor, Zed, and any other MCP-aware LLM host build, poll, and refine FloopFloop projects on the user's behalf.
+
+Wraps the official [`@floopfloop/sdk`](https://www.npmjs.com/package/@floopfloop/sdk) and exposes a curated subset of its surface as MCP tools.
+
+## Tools
+
+| Tool                 | What it does                                      |
+|----------------------|---------------------------------------------------|
+| `list_projects`      | List every project you have access to             |
+| `get_project`        | Fetch a project by id or subdomain                |
+| `project_status`     | Cheap status snapshot — safe to poll              |
+| `create_project`     | Kick off a new build from a natural-language prompt |
+| `refine_project`     | Send a refinement message to an existing project  |
+| `wait_for_live`      | Block until the project reaches a terminal state  |
+| `check_subdomain`    | Is a given slug available?                        |
+| `suggest_subdomain`  | Generate a friendly slug from a prompt            |
+| `list_secrets`       | List secret keys on a project (names only)        |
+| `set_secret`         | Create/overwrite a project secret                 |
+| `remove_secret`      | Delete a project secret                           |
+| `whoami`             | Show the authenticated user                       |
+
+## Configuration
+
+Grab an API key: `floop keys create mcp-host` (via the [floop CLI](https://github.com/FloopFloopAI/floop-cli)) or the dashboard → Account → API Keys. Business plan required to mint new keys.
+
+The server reads `FLOOP_API_KEY` from the environment. Optionally override `FLOOP_API_URL` to point at staging.
+
+### Claude Desktop
+
+`~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%AppData%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "floopfloop": {
+      "command": "npx",
+      "args": ["-y", "@floopfloop/mcp"],
+      "env": { "FLOOP_API_KEY": "flp_..." }
+    }
+  }
+}
+```
+
+Restart Claude Desktop; the tools show up under the 🔌 icon.
+
+### Cursor
+
+`~/.cursor/mcp.json` (or Cursor Settings → Tools & Integrations → MCP):
+
+```json
+{
+  "mcpServers": {
+    "floopfloop": {
+      "command": "npx",
+      "args": ["-y", "@floopfloop/mcp"],
+      "env": { "FLOOP_API_KEY": "flp_..." }
+    }
+  }
+}
+```
+
+### Generic MCP host
+
+Any host that speaks the MCP stdio transport can run the server:
+
+```bash
+FLOOP_API_KEY=flp_... npx -y @floopfloop/mcp
+```
+
+## Install
+
+The package is pulled in automatically via `npx -y @floopfloop/mcp` in the config snippets above. If you prefer a pinned install:
+
+```bash
+npm install -g @floopfloop/mcp
+which floop-mcp
+```
+
+## Usage notes
+
+- **`create_project`** starts a build right away. Follow up with `wait_for_live` (blocks) or `project_status` (poll) to know when it's up.
+- **`wait_for_live`** defaults to a 10-minute ceiling (bounded by `timeoutMs`, capped at 30 min). Most builds finish in under two minutes.
+- **`set_secret` / `remove_secret`** are marked `destructiveHint: true` — hosts may ask the user to confirm before they run.
+- **`list_secrets`** only returns names, never values. Secret values cannot be retrieved once written; rotate them by re-setting.
+- On failure, tools return an MCP `isError` content result rather than tearing down the session, so the host displays the error to the user.
+
+## Development
+
+```bash
+git clone https://github.com/FloopFloopAI/floop-mcp.git
+cd floop-mcp
+npm install
+npm run typecheck
+npm run build
+
+FLOOP_API_KEY=flp_... node dist/index.js
+```
+
+To smoke-test the stdio handshake without an LLM host:
+
+```bash
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' \
+  '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+  | FLOOP_API_KEY=flp_dummy node dist/index.js 2>/dev/null
+```
+
+## License
+
+MIT

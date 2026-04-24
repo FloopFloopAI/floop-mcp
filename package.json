@@ -1,0 +1,35 @@
+{
+  "name": "@floopfloop/mcp",
+  "version": "0.1.0-alpha.1",
+  "description": "MCP server for the FloopFloop API — let Claude Desktop, Cursor, and other LLM hosts build and refine FloopFloop projects",
+  "type": "module",
+  "bin": {
+    "floop-mcp": "./dist/index.js"
+  },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "start": "node ./dist/index.js",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "keywords": ["floopfloop", "mcp", "model-context-protocol", "vibe-coding", "claude", "cursor"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FloopFloopAI/floop-mcp.git"
+  },
+  "homepage": "https://www.floopfloop.com",
+  "bugs": "https://github.com/FloopFloopAI/floop-mcp/issues",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@floopfloop/sdk": "^0.1.0-alpha.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsup": "^8",
+    "typescript": "^5"
+  }
+}
