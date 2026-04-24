@@ -6,11 +6,31 @@ This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] — 2026-04-24
+
 ### Added
+- Six new tools covering the rest of the @floopfloop/sdk surface:
+  - `list_library_projects`, `clone_library_project` (public library).
+  - `usage_summary` (plan limits + current-period usage).
+  - `list_api_keys`, `create_api_key`, `remove_api_key`
+    (`remove_api_key` accepts id or human-readable name).
+- Tool count now **18**. Unit test, CI smoke test, and release-workflow
+  smoke test all updated to assert the new total.
+- README tool table expanded to match.
+
+### Changed
+- `PACKAGE_VERSION` + `package.json#version` bumped to `0.1.0-alpha.2`.
+
+### Not yet exposed
+- `uploads.create` — MCP hosts can't easily pass a Buffer/Uint8Array
+  payload across the stdio transport. Deferred until we wire a
+  resource-attachment path through the protocol.
+
+### Added (carried over from prior Unreleased)
 - Vitest unit tests for the tool-registration layer covering `wrap`'s
   success/error result shapes (including FloopError code/status/requestId
   formatting with and without each field present) and `registerTools`'
-  full 12-tool surface + destructive-hint annotations. Run with `npm test`.
+  destructive-hint annotations. Run with `npm test`.
 - CI and release workflows now run `npm test` before the build step.
 
 ## [0.1.0-alpha.1] — 2026-04-24

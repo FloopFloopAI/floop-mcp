@@ -206,6 +206,111 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
     wrap(({ ref, name }) => floop.secrets.remove(ref, name)),
   );
 
+  // ---------- library ----------
+
+  server.registerTool(
+    "list_library_projects",
+    {
+      title: "List public library projects",
+      description:
+        "Browse the public FloopFloop project library. Optionally filter by " +
+        "bot type, search keyword, or sort order. Use clone_library_project to " +
+        "copy one into the user's account.",
+      inputSchema: {
+        botType: z
+          .string()
+          .optional()
+          .describe("Filter to a bot type (e.g. site, app, bot)"),
+        search: z.string().optional().describe("Free-text keyword search"),
+        sort: z.enum(["popular", "newest"]).optional(),
+        page: z.number().int().positive().optional(),
+        limit: z.number().int().positive().max(100).optional(),
+      },
+      annotations: { readOnlyHint: true, idempotentHint: true },
+    },
+    wrap((opts) => floop.library.list(opts)),
+  );
+
+  server.registerTool(
+    "clone_library_project",
+    {
+      title: "Clone a library project",
+      description:
+        "Duplicate a public library project into the user's account under a " +
+        "chosen subdomain. The clone starts as a new project; use " +
+        "wait_for_live or project_status to watch its first build.",
+      inputSchema: {
+        projectId: z.string().describe("ID of the library project to clone"),
+        subdomain: z.string().min(1).describe("Subdomain for the new project"),
+      },
+      annotations: { destructiveHint: false, idempotentHint: false },
+    },
+    wrap(({ projectId, subdomain }) => floop.library.clone(projectId, { subdomain })),
+  );
+
+  // ---------- usage + api keys ----------
+
+  server.registerTool(
+    "usage_summary",
+    {
+      title: "Current-period usage + plan limits",
+      description:
+        "Return the authenticated user's plan limits and current-period " +
+        "consumption (credits remaining, builds used, storage / bandwidth, " +
+        "rollover expiry).",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, idempotentHint: true },
+    },
+    wrap(() => floop.usage.summary()),
+  );
+
+  server.registerTool(
+    "list_api_keys",
+    {
+      title: "List the user's API keys",
+      description:
+        "Return every API key the authenticated user has issued (name, " +
+        "prefix, scopes, last-used date — never the raw secret).",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, idempotentHint: true },
+    },
+    wrap(() => floop.apiKeys.list()),
+  );
+
+  server.registerTool(
+    "create_api_key",
+    {
+      title: "Mint a new API key",
+      description:
+        "Issue a new API key for programmatic access. The raw secret is " +
+        "returned ONCE in the response — surface it to the user exactly " +
+        "once and do not persist it. Business plan required.",
+      inputSchema: {
+        name: z.string().min(1).describe("Human-readable label, e.g. 'my-ci'"),
+      },
+      annotations: { destructiveHint: false, idempotentHint: false },
+    },
+    wrap(({ name }) => floop.apiKeys.create({ name })),
+  );
+
+  server.registerTool(
+    "remove_api_key",
+    {
+      title: "Revoke an API key",
+      description:
+        "Revoke an API key by id or human-readable name. The SDK does a " +
+        "preflight list + id resolve, so either form works.",
+      inputSchema: {
+        idOrName: z
+          .string()
+          .min(1)
+          .describe("API key id (uuid) or its name from list_api_keys"),
+      },
+      annotations: { destructiveHint: true, idempotentHint: true },
+    },
+    wrap(({ idOrName }) => floop.apiKeys.remove(idOrName)),
+  );
+
   // ---------- account ----------
 
   server.registerTool(

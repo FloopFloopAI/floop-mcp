@@ -12,18 +12,24 @@ Wraps the official [`@floopfloop/sdk`](https://www.npmjs.com/package/@floopfloop
 
 | Tool                 | What it does                                      |
 |----------------------|---------------------------------------------------|
-| `list_projects`      | List every project you have access to             |
-| `get_project`        | Fetch a project by id or subdomain                |
-| `project_status`     | Cheap status snapshot — safe to poll              |
-| `create_project`     | Kick off a new build from a natural-language prompt |
-| `refine_project`     | Send a refinement message to an existing project  |
-| `wait_for_live`      | Block until the project reaches a terminal state  |
-| `check_subdomain`    | Is a given slug available?                        |
-| `suggest_subdomain`  | Generate a friendly slug from a prompt            |
-| `list_secrets`       | List secret keys on a project (names only)        |
-| `set_secret`         | Create/overwrite a project secret                 |
-| `remove_secret`      | Delete a project secret                           |
-| `whoami`             | Show the authenticated user                       |
+| `list_projects`        | List every project you have access to             |
+| `get_project`          | Fetch a project by id or subdomain                |
+| `project_status`       | Cheap status snapshot — safe to poll              |
+| `create_project`       | Kick off a new build from a natural-language prompt |
+| `refine_project`       | Send a refinement message to an existing project  |
+| `wait_for_live`        | Block until the project reaches a terminal state  |
+| `check_subdomain`      | Is a given slug available?                        |
+| `suggest_subdomain`    | Generate a friendly slug from a prompt            |
+| `list_secrets`         | List secret keys on a project (names only)        |
+| `set_secret`           | Create/overwrite a project secret                 |
+| `remove_secret`        | Delete a project secret                           |
+| `list_library_projects`| Browse the public project library                 |
+| `clone_library_project`| Duplicate a library project into the user's account |
+| `usage_summary`        | Plan limits + current-period credit / build / storage usage |
+| `list_api_keys`        | List the user's API keys (never returns the raw secret) |
+| `create_api_key`       | Mint a new API key — raw secret returned ONCE     |
+| `remove_api_key`       | Revoke an API key by id or name                   |
+| `whoami`               | Show the authenticated user                       |
 
 ## Configuration
 
