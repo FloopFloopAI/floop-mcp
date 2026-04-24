@@ -1,6 +1,8 @@
 # @floopfloop/mcp
 
 [![npm version](https://img.shields.io/npm/v/@floopfloop/mcp?logo=npm)](https://www.npmjs.com/package/@floopfloop/mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@floopfloop/mcp?logo=npm)](https://www.npmjs.com/package/@floopfloop/mcp)
+[![CI](https://img.shields.io/github/actions/workflow/status/FloopFloopAI/floop-mcp/ci.yml?branch=main&logo=github&label=ci)](https://github.com/FloopFloopAI/floop-mcp/actions/workflows/ci.yml)
 [![Node.js Version](https://img.shields.io/node/v/@floopfloop/mcp?logo=node.js&logoColor=white)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/npm/l/@floopfloop/mcp)](./LICENSE)
 
