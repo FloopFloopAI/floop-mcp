@@ -11,7 +11,9 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "start": "node ./dist/index.js",
-    "prepublishOnly": "npm run typecheck && npm run build"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "keywords": ["floopfloop", "mcp", "model-context-protocol", "vibe-coding", "claude", "cursor"],
   "license": "MIT",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "tsup": "^8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2"
   }
 }

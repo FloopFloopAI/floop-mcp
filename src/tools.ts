@@ -226,7 +226,7 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
  * with the request id — letting the host display them to the user without
  * tearing down the MCP session.
  */
-function wrap<Args>(
+export function wrap<Args>(
   impl: (args: Args) => unknown | Promise<unknown>,
 ): (args: Args) => Promise<CallToolResult> {
   return async (args: Args): Promise<CallToolResult> => {

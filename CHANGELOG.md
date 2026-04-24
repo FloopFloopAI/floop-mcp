@@ -4,6 +4,15 @@ All notable changes to `@floopfloop/mcp` are documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Vitest unit tests for the tool-registration layer covering `wrap`'s
+  success/error result shapes (including FloopError code/status/requestId
+  formatting with and without each field present) and `registerTools`'
+  full 12-tool surface + destructive-hint annotations. Run with `npm test`.
+- CI and release workflows now run `npm test` before the build step.
+
 ## [0.1.0-alpha.1] — 2026-04-24
 
 ### Added
