@@ -112,6 +112,9 @@ describe("registerTools", () => {
     "create_project",
     "refine_project",
     "wait_for_live",
+    "cancel_project",
+    "reactivate_project",
+    "get_conversations",
     "check_subdomain",
     "suggest_subdomain",
     "list_secrets",
@@ -127,7 +130,7 @@ describe("registerTools", () => {
     "whoami",
   ] as const;
 
-  it("registers exactly the expected 19 tools, each with a description and inputSchema", () => {
+  it("registers exactly the expected 22 tools, each with a description and inputSchema", () => {
     const registered: Array<{ name: string; meta: Record<string, unknown> }> = [];
     const mockServer = {
       registerTool: (name: string, meta: Record<string, unknown>, _handler: unknown) => {
@@ -166,10 +169,12 @@ describe("registerTools", () => {
     expect(byName.get("set_secret")?.annotations?.destructiveHint).toBe(true);
     expect(byName.get("remove_secret")?.annotations?.destructiveHint).toBe(true);
     expect(byName.get("remove_api_key")?.annotations?.destructiveHint).toBe(true);
+    expect(byName.get("cancel_project")?.annotations?.destructiveHint).toBe(true);
     // Read-only tool should not be marked destructive.
     expect(byName.get("list_projects")?.annotations?.destructiveHint).toBeUndefined();
     expect(byName.get("list_api_keys")?.annotations?.destructiveHint).toBeUndefined();
     expect(byName.get("usage_summary")?.annotations?.destructiveHint).toBeUndefined();
+    expect(byName.get("get_conversations")?.annotations?.destructiveHint).toBeUndefined();
   });
 });
 

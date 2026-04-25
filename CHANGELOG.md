@@ -6,6 +6,25 @@ This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.4] — 2026-04-25
+
+### Added
+- **`cancel_project` tool** — wraps `floop.projects.cancel(ref)`. Lets
+  the LLM stop a queued or in-progress build (e.g. when the user
+  realises they got the prompt wrong mid-deploy). Marked
+  `destructiveHint: true` so hosts can gate behind user confirmation.
+- **`reactivate_project` tool** — wraps `floop.projects.reactivate(ref)`.
+  Resumes a previously cancelled or archived project, triggering a
+  fresh build at the project's most recent prompt.
+- **`get_conversations` tool** — wraps `floop.projects.conversations(ref, limit?)`.
+  Returns the message timeline (user prompts, assistant responses,
+  deploy markers, queued messages) so the LLM can read what's already
+  been said before composing a refinement.
+
+### Changed
+- Total tool count now **22**. Unit test, CI smoke test, and release
+  smoke test all bumped from 19 → 22.
+
 ## [0.1.0-alpha.3] — 2026-04-24
 
 ### Added

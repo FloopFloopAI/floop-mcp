@@ -135,6 +135,59 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
     }),
   );
 
+  server.registerTool(
+    "cancel_project",
+    {
+      title: "Cancel an in-flight build",
+      description:
+        "Stop a queued or in-progress build. The project moves to status " +
+        "`cancelled`; use reactivate_project to resume it later.",
+      inputSchema: {
+        ref: z.string().describe("Project id or subdomain"),
+      },
+      annotations: { destructiveHint: true, idempotentHint: true },
+    },
+    wrap(({ ref }) => floop.projects.cancel(ref)),
+  );
+
+  server.registerTool(
+    "reactivate_project",
+    {
+      title: "Reactivate a cancelled / archived project",
+      description:
+        "Resume a previously cancelled or archived project. Triggers a fresh " +
+        "build at the project's most recent prompt.",
+      inputSchema: {
+        ref: z.string().describe("Project id or subdomain"),
+      },
+      annotations: { destructiveHint: false, idempotentHint: false },
+    },
+    wrap(({ ref }) => floop.projects.reactivate(ref)),
+  );
+
+  server.registerTool(
+    "get_conversations",
+    {
+      title: "Read a project's conversation history",
+      description:
+        "Fetch the message timeline (user prompts, assistant responses, deploy " +
+        "markers, queued messages) for a project. Useful for letting the LLM see " +
+        "what's already been said before composing a refinement.",
+      inputSchema: {
+        ref: z.string().describe("Project id or subdomain"),
+        limit: z
+          .number()
+          .int()
+          .positive()
+          .max(200)
+          .optional()
+          .describe("Max messages to return (default: server-side default)"),
+      },
+      annotations: { readOnlyHint: true, idempotentHint: true },
+    },
+    wrap(({ ref, limit }) => floop.projects.conversations(ref, limit !== undefined ? { limit } : undefined)),
+  );
+
   // ---------- subdomains ----------
 
   server.registerTool(
