@@ -36,7 +36,7 @@ jobs:
             | FLOOP_API_KEY=flp_dummy timeout 5 node dist/index.js 2>/dev/null)
           count=$(printf '%s\n' "$output" | python3 -c 'import json,sys; [print(len(m["result"]["tools"])) for m in (json.loads(l) for l in sys.stdin if l.strip()) if m.get("id")==2]' | head -1)
           echo "Registered tools: $count"
-          if [ "$count" != "19" ]; then
-            echo "Expected 19 tools, got $count" >&2
+          if [ "$count" != "22" ]; then
+            echo "Expected 22 tools, got $count" >&2
             exit 1
           fi

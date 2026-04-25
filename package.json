@@ -1,6 +1,6 @@
 {
   "name": "@floopfloop/mcp",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "MCP server for the FloopFloop API — let Claude Desktop, Cursor, and other LLM hosts build and refine FloopFloop projects",
   "type": "module",
   "bin": {

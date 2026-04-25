@@ -20,6 +20,9 @@ Wraps the official [`@floopfloop/sdk`](https://www.npmjs.com/package/@floopfloop
 | `create_project`       | Kick off a new build from a natural-language prompt |
 | `refine_project`       | Send a refinement message to an existing project  |
 | `wait_for_live`        | Block until the project reaches a terminal state  |
+| `cancel_project`       | Stop a queued or in-progress build                |
+| `reactivate_project`   | Resume a cancelled / archived project             |
+| `get_conversations`    | Read a project's message timeline (prompts + replies + deploy markers) |
 | `check_subdomain`      | Is a given slug available?                        |
 | `suggest_subdomain`    | Generate a friendly slug from a prompt            |
 | `list_secrets`         | List secret keys on a project (names only)        |
