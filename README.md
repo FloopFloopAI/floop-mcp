@@ -98,6 +98,9 @@ which floop-mcp
 
 - **`create_project`** starts a build right away. Follow up with `wait_for_live` (blocks) or `project_status` (poll) to know when it's up.
 - **`wait_for_live`** defaults to a 10-minute ceiling (bounded by `timeoutMs`, capped at 30 min). Most builds finish in under two minutes.
+- **`upload_from_path` → `refine_project`** is the canonical attachment flow: call `upload_from_path` with a local file, get back an `UploadedAttachment` (`{key, fileName, fileType, fileSize}`), then pass it as `attachments: [<that object>]` on `refine_project`. The LLM host's process needs read access to the file path; max 5 MB.
+- **`refine_project` `codeEditOnly: true`** runs a 3-step in-place patch instead of a full 6-step rebuild and charges roughly half the credits — use it for copy edits, colour swaps, or typo fixes on a project that's already live. The backend won't promote a code-edit to a full refinement automatically, so prefer plain `refine_project` when the change actually needs redesign.
+- **`cancel_project` → `reactivate_project`** is the abort/redo pattern. `cancel_project` is `destructiveHint: true`; hosts should confirm before calling it. `reactivate_project` triggers a fresh build at the project's most recent prompt.
 - **`set_secret` / `remove_secret`** are marked `destructiveHint: true` — hosts may ask the user to confirm before they run.
 - **`list_secrets`** only returns names, never values. Secret values cannot be retrieved once written; rotate them by re-setting.
 - On failure, tools return an MCP `isError` content result rather than tearing down the session, so the host displays the error to the user.
