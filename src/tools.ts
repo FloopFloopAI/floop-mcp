@@ -75,7 +75,12 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
         prompt: z.string().min(1).describe("Natural-language brief for the project"),
         name: z.string().optional(),
         subdomain: z.string().optional().describe("Override the auto-suggested subdomain slug"),
-        botType: z.enum(["site", "app"]).optional().describe("Default is site"),
+        botType: z
+          .enum(["site", "app", "bot", "api", "internal", "game"])
+          .optional()
+          .describe(
+            "Project category. Default is `site`. Picks the codegen template + UI scaffolding the build uses.",
+          ),
         isAuthProtected: z.boolean().optional(),
         teamId: z.string().optional(),
       },
@@ -90,10 +95,32 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
       title: "Refine a project with a new instruction",
       description:
         "Send a refinement message to an existing project. Triggers a " +
-        "follow-up build unless the backend decides it's a code-only edit.",
+        "follow-up build unless the backend decides it's a code-only edit. " +
+        "Pass `attachments` returned by `upload_from_path` to thread images, " +
+        "PDFs, or CSVs into the build prompt; pass `codeEditOnly: true` to " +
+        "force a small in-place code patch (skips redesign/replan).",
       inputSchema: {
         ref: z.string().describe("Project id or subdomain"),
         message: z.string().min(1).describe("What to change"),
+        attachments: z
+          .array(
+            z.object({
+              key: z.string().describe("S3 key returned by upload_from_path"),
+              fileName: z.string(),
+              fileType: z.string().describe("MIME type, e.g. image/png"),
+              fileSize: z.number().int().positive(),
+            }),
+          )
+          .optional()
+          .describe(
+            "Attachments returned by upload_from_path. The build sees them alongside the message.",
+          ),
+        codeEditOnly: z
+          .boolean()
+          .optional()
+          .describe(
+            "Force a code-only edit (skip redesign/replan). Use for small tweaks; the backend still validates whether the change qualifies.",
+          ),
         wait: z
           .boolean()
           .optional()
@@ -101,7 +128,14 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
       },
       annotations: { destructiveHint: false, idempotentHint: false },
     },
-    wrap(({ ref, message, wait }) => floop.projects.refine(ref, { message, wait })),
+    wrap(({ ref, message, attachments, codeEditOnly, wait }) =>
+      floop.projects.refine(ref, {
+        message,
+        ...(attachments ? { attachments } : {}),
+        ...(codeEditOnly !== undefined ? { codeEditOnly } : {}),
+        ...(wait !== undefined ? { wait } : {}),
+      }),
+    ),
   );
 
   server.registerTool(
