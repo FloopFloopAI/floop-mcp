@@ -14,8 +14,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { FloopClient } from "@floopfloop/sdk";
 
 import { registerTools } from "./tools.js";
-
-const PACKAGE_VERSION = "0.1.0-alpha.3";
+import { CURRENT_VERSION as PACKAGE_VERSION } from "./version.js";
 
 async function main(): Promise<void> {
   const apiKey = process.env.FLOOP_API_KEY;

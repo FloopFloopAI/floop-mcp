@@ -6,6 +6,33 @@ This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.5] — 2026-04-26
+
+### Fixed
+- **`refine_project` now accepts `attachments` and `codeEditOnly`.**
+  alpha.3 shipped `upload_from_path` and the CHANGELOG claimed its
+  output could be "dropped straight into refine_project's attachments
+  array" — but the MCP `refine_project` schema didn't actually expose
+  the `attachments` field, so an LLM that called `upload_from_path`
+  had nowhere to put the result. The Node SDK's `RefineInput` has
+  supported attachments + codeEditOnly since alpha.2; the gap was on
+  the MCP side. Closed now: the LLM can upload a screenshot, get an
+  attachment ref back, and pass it straight into `refine_project`.
+- **`create_project` `botType` enum was too narrow.** Restricted to
+  `["site", "app"]` while the SDK type and the backend accept all six
+  (`site | app | bot | api | internal | game`). Calls with `bot`,
+  `api`, `internal`, or `game` were rejected by zod before they ever
+  reached the API. All six are now allowed.
+- **Version drift between `package.json` and `src/index.ts`.** alpha.4
+  shipped reporting itself as `0.1.0-alpha.3` in the User-Agent
+  header, the McpServer `version` field, and the stderr ready banner.
+  Same root cause as the floop-cli alpha.6 fix — extracted a single
+  `src/version.ts` constant so future bumps can't drift.
+
+### Changed
+- Tool count unchanged (still 22). Smoke tests, unit tests, and
+  release-workflow tool-count assertion all unaffected.
+
 ## [0.1.0-alpha.4] — 2026-04-25
 
 ### Added
