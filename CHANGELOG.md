@@ -6,6 +6,22 @@ This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.6] — 2026-04-28
+
+### Added
+- **`current_subscription` tool** — wraps `floop.subscriptions.current()`
+  newly exposed in `@floopfloop/sdk@0.1.0-alpha.3`. Returns the user's plan
+  tier (price, billing period, cancel state, plan-level limits, features)
+  plus current + rolled-over credit balance. Distinct from `usage_summary` —
+  `usage_summary` covers current-period CONSUMPTION, this covers the plan
+  ITSELF. Read-only, idempotent.
+
+### Changed
+- Tool count now **23** (was 22). Unit test, CI smoke test, and
+  release-workflow smoke test all updated in lockstep.
+- `@floopfloop/sdk` dependency bumped to `^0.1.0-alpha.3` to pick up the
+  new resource.
+
 ## [0.1.0-alpha.5] — 2026-04-26
 
 ### Fixed
