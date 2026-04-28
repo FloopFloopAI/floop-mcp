@@ -357,6 +357,24 @@ export function registerTools(server: McpServer, floop: FloopClient): void {
   );
 
   server.registerTool(
+    "current_subscription",
+    {
+      title: "Current plan + credit-balance snapshot",
+      description:
+        "Return the authenticated user's plan tier (price, billing period, " +
+        "cancel state, plan-level limits, features) plus current + rolled-over " +
+        "credits. Distinct from usage_summary — usage_summary covers " +
+        "current-period CONSUMPTION (credits used, builds run, storage), this " +
+        "covers the plan ITSELF (which tier, when does it renew). Both " +
+        "subscription and credits fields can be null for users mid-signup or " +
+        "cancelled with no grace credits.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, idempotentHint: true },
+    },
+    wrap(() => floop.subscriptions.current()),
+  );
+
+  server.registerTool(
     "list_api_keys",
     {
       title: "List the user's API keys",

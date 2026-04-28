@@ -36,6 +36,7 @@ Wraps the official [`@floopfloop/sdk`](https://www.npmjs.com/package/@floopfloop
 | `remove_api_key`       | Revoke an API key by id or name                   |
 | `upload_from_path`     | Read a local file, presign + upload to S3, return an attachment ref |
 | `whoami`               | Show the authenticated user                       |
+| `current_subscription` | Plan tier + credit balance (price, billing period, current/rolled-over credits) |
 
 ## Configuration
 
